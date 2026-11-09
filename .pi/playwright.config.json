@@ -1,0 +1,23 @@
+{
+  "browser": {
+    "browserName": "chromium",
+    "launchOptions": {
+      "headless": false,
+      "args": [
+        "--no-sandbox",
+        "--window-position=0,0"
+      ],
+      "executablePath": "/data/data/com.termux/files/usr/bin/chromium-browser"
+    },
+    "contextOptions": {
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+      "locale": "vi-VN",
+      "timezoneId": "Asia/Ho_Chi_Minh",
+      "viewport": {
+        "width": 1072,
+        "height": 856
+      }
+    }
+  },
+  "outputDir": ".playwright-output"
+}

@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "/data/data/com.termux/files/usr/bin/node",
+      "args": [
+        "-r",
+        "/data/data/com.termux/files/home/repos/web/.pi/playwright-platform-shim.cjs",
+        "/data/data/com.termux/files/home/.local/lib/node_modules/@playwright/mcp/cli.js",
+        "--config",
+        "/data/data/com.termux/files/home/repos/web/.pi/playwright.config.json",
+        "--browser",
+        "chromium",
+        "--executable-path",
+        "/data/data/com.termux/files/usr/bin/chromium-browser",
+        "--no-sandbox",
+        "--user-data-dir",
+        "/data/data/com.termux/files/home/repos/web/.chrome-profile",
+        "--output-dir",
+        "/data/data/com.termux/files/home/repos/web/.playwright-output"
+      ],
+      "description": "Drive a headless Chromium browser: navigate, click, type, snapshot pages, take screenshots.",
+      "exposure": "direct",
+      "timeout": 120,
+      "env": {
+        "DISPLAY": ":0"
+      }
+    }
+  }
+}

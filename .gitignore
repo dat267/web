@@ -1,0 +1,25 @@
+# Credentials — never commit
+.env
+.env.*
+!.env.example
+.pi/slack-cookies.b64
+*.b64
+
+# Cached session material derived from credentials
+.pi/slack-token.json
+.pi/slack-names.json
+.pi/owa-token.json
+.pi/owa-names.json
+
+# Browser profiles (contain authenticated cookies/storage)
+.chrome-profile/
+.slack-profile/
+.owa-profile/
+.claude/settings.local.json
+
+# Harness output
+.playwright-output/
+*.log
+
+# Runtime
+node_modules/
