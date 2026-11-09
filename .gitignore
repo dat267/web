@@ -2,16 +2,13 @@
 .env
 .env.*
 !.env.example
-.pi/slack-cookies.b64
+
+# Runtime state: cookie jars, cached tokens, cached name maps (0700, created
+# lazily by the scripts). Anything in here is credential material.
+tmp/
 *.b64
 
-# Cached session material derived from credentials
-.pi/slack-token.json
-.pi/slack-names.json
-.pi/owa-token.json
-.pi/owa-names.json
-
-# Browser profiles (contain authenticated cookies/storage)
+# Browser profiles (contain authenticated cookies and storage)
 .chrome-profile/
 .slack-profile/
 .owa-profile/

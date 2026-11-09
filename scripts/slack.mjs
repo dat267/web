@@ -13,9 +13,9 @@
 //   npm install playwright-core        # or have @playwright/mcp installed
 //
 // State:
-//   <repo>/.pi/slack-cookies.b64   cookie jar (d, d-s, x, lc) — chmod 600
-//   <repo>/.pi/slack-token.json    cached xoxc token (24h, re-scraped on invalid_auth)
-//   <repo>/.pi/slack-names.json    cached user/channel name maps (12h)
+//   <repo>/tmp/slack-cookies.b64   cookie jar (d, d-s, x, lc) — chmod 600
+//   <repo>/tmp/slack-token.json    cached xoxc token (24h, re-scraped on invalid_auth)
+//   <repo>/tmp/slack-names.json    cached user/channel name maps (12h)
 //   <repo>/.slack-profile/         persistent Chromium profile for login only
 //   env SLACK_WORKSPACE            workspace subdomain (required)
 //   env SLACK_PROFILE_DIR          profile dir override
@@ -46,7 +46,14 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const PROFILE_DIR = process.env.SLACK_PROFILE_DIR || path.join(ROOT, ".slack-profile");
-const COOKIES_FILE = path.join(ROOT, ".pi", "slack-cookies.b64");
+const STATE_DIR = path.join(ROOT, "tmp");
+const COOKIES_FILE = path.join(STATE_DIR, "slack-cookies.b64");
+
+/* Runtime state lives in <root>/tmp (gitignored, 0700). It is created lazily so
+   a fresh clone works without any setup step. */
+function ensureStateDir() {
+  fs.mkdirSync(STATE_DIR, { recursive: true, mode: 0o700 });
+}
 
 /* Read KEY=value pairs from <root>/.env, which is gitignored. Keeps the
    workspace subdomain out of tracked source while still allowing a per-machine
@@ -159,6 +166,7 @@ function readJar() {
 }
 
 function writeJar(jar) {
+  ensureStateDir();
   fs.writeFileSync(COOKIES_FILE, Buffer.from(JSON.stringify(jar)).toString("base64") + "\n");
   fs.chmodSync(COOKIES_FILE, 0o600);
 }
@@ -188,7 +196,7 @@ const asStorageState = (jar) => ({
 
 /* ---------------------------------------------------------------- fast path */
 
-const TOKEN_CACHE = path.join(ROOT, ".pi", "slack-token.json");
+const TOKEN_CACHE = path.join(STATE_DIR, "slack-token.json");
 const TOKEN_TTL_MS = Number(process.env.SLACK_TOKEN_TTL_HOURS || 24) * 3600_000;
 
 function readTokenCache() {
@@ -203,6 +211,7 @@ function readTokenCache() {
 
 function writeTokenCache(token) {
   try {
+    ensureStateDir();
     fs.writeFileSync(TOKEN_CACHE, JSON.stringify({ workspace: WORKSPACE, at: Date.now(), token }));
     fs.chmodSync(TOKEN_CACHE, 0o600);
   } catch {
@@ -508,7 +517,7 @@ async function channelMap(call, users = new Map()) {
   return map;
 }
 
-const NAME_CACHE = path.join(ROOT, ".pi", "slack-names.json");
+const NAME_CACHE = path.join(STATE_DIR, "slack-names.json");
 const NAME_TTL_MS = Number(process.env.SLACK_NAME_TTL_HOURS || 12) * 3600_000;
 
 async function readNameCache() {
@@ -525,6 +534,7 @@ async function readNameCache() {
 
 function writeNameCache(ctx) {
   try {
+    ensureStateDir();
     fs.writeFileSync(
       NAME_CACHE,
       JSON.stringify({ at: Date.now(), users: [...ctx.users], channels: [...ctx.channels] }),

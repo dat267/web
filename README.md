@@ -118,9 +118,9 @@ Two OWA measurements worth keeping in mind if you edit the calendar code: select
 
 ## Security
 
-- `.env`, the cookie jar, the token caches, and all browser profiles are gitignored, and created with `0600` permissions.
+- `.env`, `tmp/`, and all browser profiles are gitignored. State files are written `0600` inside a `0700` directory.
 - The OWA refresh token rotates on every redemption. Redemptions are not lock-protected, so **do not run two OWA commands concurrently** — a race can persist a stale token.
-- The Slack session is tied to a browser cookie. Treat `.pi/slack-cookies.b64` as a password: whoever holds it can read every channel that account can read.
+- The Slack session is tied to a browser cookie. Treat `tmp/slack-cookies.b64` as a password: whoever holds it can read every channel that account can read.
 - The OWA refresh token expires after roughly 24 hours of disuse. If a command fails with `token redemption failed (invalid_grant)`, the session aged out: re-run `login`.
 - To revoke: sign out of the Slack workspace, and for Outlook delete the session at `account.microsoft.com`. Both scripts will then fail cleanly with an instruction to re-run `login`.
 
@@ -128,7 +128,8 @@ Two OWA measurements worth keeping in mind if you edit the calendar code: select
 
 - `scripts/slack.mjs` — read-only Slack CLI.
 - `scripts/owa.mjs` — Outlook mail and calendar CLI.
-- `scripts/` is intentionally self-contained: both files run standalone with `node`, with no package.json and no build step.
+- Both scripts are standalone: they run with plain `node`, with no package.json and no build step.
+- `tmp/` — runtime state (cookie jar, cached tokens, cached name maps), created on first run with `0700` permissions and never committed.
 - `.pi/playwright-platform-shim.cjs` — sets `process.platform` to `linux`; `playwright-core` throws `Unsupported platform: android` otherwise.
 - `.mcp.json`, `.pi/mcp.json`, `.pi/playwright.config.json` — Playwright MCP wiring with local absolute paths.
 - `AGENTS.md` — environment notes for Android/Termux.

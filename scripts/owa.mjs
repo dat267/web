@@ -15,7 +15,7 @@
 //   node owa.mjs events | event | event-delete
 //   node owa.mjs whoami
 //
-// Access tokens are cached in <root>/.pi/owa-token.json (expiry-aware) so a
+// Access tokens are cached in <root>/tmp/owa-token.json (expiry-aware) so a
 // command normally skips redemption entirely; OWA_NO_CACHE=1 forces a fresh
 // one. OWA_JSON=1 emits raw JSON. OWA_FIND_SCAN sets the find scan depth.
 //
@@ -248,7 +248,8 @@ async function tokenExchange(code, verifier) {
 
 // ---------------------------------------------------------------- tokens --
 
-const TOKEN_CACHE = path.join(ROOT, ".pi", "owa-token.json");
+const STATE_DIR = path.join(ROOT, "tmp");
+const TOKEN_CACHE = path.join(STATE_DIR, "owa-token.json");
 
 /* Access tokens live 61-77 min. Caching one avoids a redemption per command,
    which also means fewer chances to race the rotating refresh token. */
@@ -265,6 +266,8 @@ function readTokenCache(env) {
 
 function writeTokenCache(env, accessToken, expiresIn) {
   try {
+    // Runtime state lives in <root>/tmp (gitignored, 0700), created lazily.
+    fs.mkdirSync(STATE_DIR, { recursive: true, mode: 0o700 });
     fs.writeFileSync(
       TOKEN_CACHE,
       JSON.stringify({
